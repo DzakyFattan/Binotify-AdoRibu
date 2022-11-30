@@ -29,7 +29,15 @@
                             <span>'. $json->email.'</span>
                             <span>' . $json->user_id . '</span> 
                         </div>';
-        }  
+        }  else if ($type === "singer"){
+            $retval .= '<div class="l-elmt-detail-wrapper">
+                        <div class="l-elmt-detail"> 
+                            <div class="l-elmt-detail-title">' . $json->username .'</div>
+                        </div>
+                        </div>
+                        <a href="/components/set-subscription.php?id='. $json->id_user .'" class="button-filter">Subscribe</a>
+                        <div class="l-elmt-detail-wrapper">';
+        }
         $retval .= '</div>
                     <div class="delete-icon-wrap visib-hidden">
                         <img src="/assets/img/trash-o.svg" alt="">
@@ -40,3 +48,5 @@
         return $retval;
     }
 ?>
+
+<!-- TODO : rapihin tombol yang singer_list kalau bisa -->
