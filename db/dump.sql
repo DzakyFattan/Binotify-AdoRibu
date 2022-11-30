@@ -25,7 +25,7 @@ CREATE FUNCTION public.calculate_total_time() RETURNS trigger
     AS $$
 BEGIN
 UPDATE album
-SET total_duration = (SELECT SUM(duration)
+SET total_duration = (SELECT COALESCE(SUM(duration),0)
 FROM song
 WHERE album_id = NEW.album_id)
 WHERE album_id = NEW.album_id;
@@ -49,7 +49,7 @@ CREATE TABLE public.album (
     album_id integer NOT NULL,
     judul character varying(64) NOT NULL,
     penyanyi character varying(128) NOT NULL,
-    total_duration integer NOT NULL,
+    total_duration integer DEFAULT 0 NOT NULL,
     image_path character varying(256) NOT NULL,
     tanggal_terbit date NOT NULL,
     genre character varying(64)
@@ -283,28 +283,15 @@ ALTER TABLE ONLY public.user_account
 -- Name: song total_time; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
-CREATE TRIGGER total_time AFTER INSERT ON public.song FOR EACH ROW EXECUTE FUNCTION public.calculate_total_time();
+CREATE TRIGGER total_time AFTER INSERT ON public.song FOR EACH STATEMENT EXECUTE FUNCTION public.calculate_total_time();
 
 
 --
 -- Name: song total_time2; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
-CREATE TRIGGER total_time2 AFTER DELETE ON public.song FOR EACH ROW EXECUTE FUNCTION public.calculate_total_time();
+CREATE TRIGGER total_time2 AFTER DELETE ON public.song FOR EACH STATEMENT EXECUTE FUNCTION public.calculate_total_time();
 
-
---
--- Name: song total_time3; Type: TRIGGER; Schema: public; Owner: postgres
---
-
-CREATE TRIGGER total_time3 AFTER DELETE ON public.song FOR EACH ROW EXECUTE FUNCTION public.calculate_total_time();
-
-
---
--- Name: song total_time4; Type: TRIGGER; Schema: public; Owner: postgres
---
-
-CREATE TRIGGER total_time4 BEFORE DELETE ON public.song FOR EACH ROW EXECUTE FUNCTION public.calculate_total_time();
 
 
 --

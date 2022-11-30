@@ -10,13 +10,14 @@
             <div class="dropdown-padder"></div>
             <li><a href="/">Explore</a></li>
             <li><a href="/album_list.php">Album</a></li>
-            <?php if ($_SESSION['login'] == true) { ?>
-                <li><a href="#" id="logout-btn">Logout</a></li> 
-                <?php if ($_SESSION['isadmin'] == true) { ?>
-                        <li><a href="/user_list.php">USERS</a></li>
-            <?php }} else { ?>
-                <li><a href="/register.php">Register</a></li>
+            <?php if ($_SESSION['isadmin'] == true) { ?>
+                <li><a href="/user_list.php">USERS</a></li>
+            <?php } if ($_SESSION['login'] == true) { ?>
+                <li><a href="/singer_list.php">Subscriptions</a></li>
+                <li><a href="#" id="logout-btn">Logout</a></li>  
+            <?php } else { ?>
                 <li><a href="/login.php">Login</a></li>
+                <li><a href="/register.php">Register</a></li>
             <?php } ?>
             <li class="user-info-h">Logged in as <span><?= $_SESSION['username'] ?></span></li>
         </ul>

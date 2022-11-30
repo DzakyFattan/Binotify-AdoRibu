@@ -26,7 +26,7 @@
         <div class="bg-wrap">
             <?php include_once 'components/header.php'; ?>
             <section class="section-fw flex-col">
-                <form action="" class="login-control flex-col form-album" autocomplete="off" id="login-form">
+                <form action="" class="login-control flex-col form-album" autocomplete="off" id="form-login">
                     <input type="text" name="emailuname" class="input-text" placeholder="Email / Username">
                     <input type="password" name="password" class="input-text" placeholder="Password">
                     <input type="button" name="submit-btn"class="button-filter" value="Login">

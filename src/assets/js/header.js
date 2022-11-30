@@ -1,4 +1,3 @@
-
 class HeaderJS {
     constructor() {
         this.searchbarnav = document.querySelector('#search-bar-nav');
@@ -9,7 +8,7 @@ class HeaderJS {
     }
     dologout() {
         let xhr = new XMLHttpRequest();
-        let url = 'http://localhost:8008/process/do_logout.php';
+        let url = 'http://localhost:8008/process/logout.php';
         xhr.open('POST', url, true);
         xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
         xhr.onreadystatechange = () => {
