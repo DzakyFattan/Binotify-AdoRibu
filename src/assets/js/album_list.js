@@ -9,7 +9,7 @@ class AlbumListJS {
     }
     fetchCurrentPage() {
         let xhr = new XMLHttpRequest();
-        xhr.open('GET', 'http://localhost:8008/process/album_fetch.php?page=' + this.page + '&limit=' + this.limit, true);
+        xhr.open('GET', 'http://localhost:8008/process/album_backend.php?page=' + this.page + '&limit=' + this.limit, true);
         xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
         xhr.onreadystatechange = () => {
             if (xhr.status === 200 && xhr.readyState === 4) {

@@ -24,9 +24,10 @@
         <div class="bg-wrap">
             <?php include_once 'components/header.php'; ?>
             <section class="section-fw">
-                <div class="user-list flex-col">
+                <div class="list-user flex-col">
                     <h1 class="section-title">User List</h1>
-                    <div class="user-list-limit">
+                    <div class="list-user-limit">
+                        <?php include 'components/list-display.php'; ?>
                     </div>
                     <?php include_once 'components/list-d-control.php'; ?>
                 </div>

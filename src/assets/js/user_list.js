@@ -3,7 +3,7 @@ class UserListJS {
         this.page = 1;
         this.fetchurl = 'http://localhost:8008/process/user_backend.php';
         this.displayurl = 'http://localhost:8008/components/list-display.php';
-        this.output = document.querySelector('.user-list-limit');
+        this.output = document.querySelector('.list-user-limit');
     }
 
     run() {
