@@ -2,7 +2,7 @@ class LoginJS {
     constructor() {
         this.xhr = new XMLHttpRequest();
         this.url = 'http://localhost:8008/process/login_backend.php';
-        this.loginform = document.querySelector('#form-login');
+        this.loginform = document.querySelector('#login-form');
         this.submitbtn = this.loginform.querySelector('input[name="submit-btn"]');
         this.emailuname = this.loginform.querySelector('input[name="emailuname"]');
         this.password = this.loginform.querySelector('input[name="password"]');

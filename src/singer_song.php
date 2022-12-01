@@ -1,4 +1,17 @@
-<?php require_once 'components/default_session.php'; ?>
+<?php require_once 'components/default_session.php'; 
+    $db = pg_connect("host=tubes-1-db port=5432 dbname=musikwbd user=postgres password=postgres");
+    $creator_id = $_GET['id'];
+    $subs_id = $_SESSION['user_id'];
+    $permission_data = <<< Q
+            SELECT * FROM subscription WHERE creator_id = $creator_id AND subscriber_id = $subs_id AND status = 'ACCEPTED'
+        Q;
+    $result = pg_query($db, $permission_data);
+    if (!$result){
+        header("Location: /singer_list.php");
+        exit;
+    }
+
+?>
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->

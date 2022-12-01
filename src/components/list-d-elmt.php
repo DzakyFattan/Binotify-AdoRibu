@@ -36,6 +36,7 @@
                         </div>
                         </div>
                         <a href="/components/set-subscription.php?id='. $json->id_user .'" class="button-filter">Subscribe</a>
+                        <a href="/singer_song.php?id='. $json->id_user .'" class="button-filter">Check Song</a>
                         <div class="l-elmt-detail-wrapper">';
         }
         $retval .= '</div>

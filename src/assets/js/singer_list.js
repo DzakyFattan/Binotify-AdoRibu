@@ -15,11 +15,11 @@ class SingerListJS {
         xhr.onreadystatechange = () => {
             if (xhr.status === 200 && xhr.readyState === 4) {
                 let parsed = JSON.parse(xhr.responseText);
-                console.log(parsed);
+                /*
                 if (parsed.length === 0) {
                     this.previousPage();
                     this.stop_page = true;   
-                }
+                }*/
                 this.output.innerHTML = '';
                 let xhr2 = new XMLHttpRequest();
                 xhr2.open('GET', 'http://localhost:8008/components/list-display.php' + "?type=singer&json=" +  JSON.stringify(parsed), true);
