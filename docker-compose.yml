@@ -10,7 +10,7 @@ services:
     ports:
       - "8008:80"
     networks:
-      - app-network
+      - tubes2-network
     volumes:
       - ./src:/var/www/html
       - ./src/assets/audio:/var/www/html/assets/audio
@@ -26,7 +26,7 @@ services:
       target: fpm
     container_name: tubes-1-fpm
     networks:
-      - app-network
+      - tubes2-network
     restart: unless-stopped
     volumes:
       - ./src:/var/www/html
@@ -49,10 +49,12 @@ services:
     tty: true
     restart: unless-stopped
     networks:
-      - app-network
+      - tubes2-network
 
 volumes:
   db_data:
 networks: 
-  app-network:
+  tubes2-network:
+    name: tubes2-network
     driver: bridge
+    

@@ -10,6 +10,7 @@
         $res = pg_query($db, "SELECT * FROM user_account WHERE (email = '$emailuname' OR username = '$emailuname') AND password = '$password'");
         if(pg_num_rows($res) == 1) {
             $data = pg_fetch_assoc($res);
+            $_SESSION['user_id'] = $data['user_id'];
             $_SESSION['login'] = true;
             $_SESSION['username'] = $data['username'];
             $_SESSION['email'] = $data['email'];

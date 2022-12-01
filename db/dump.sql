@@ -17,6 +17,19 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: status_t; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public.status_t AS ENUM (
+    'PENDING',
+    'ACCEPTED',
+    'REJECTED'
+);
+
+
+ALTER TYPE public.status_t OWNER TO postgres;
+
+--
 -- Name: calculate_total_time(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -122,6 +135,19 @@ ALTER SEQUENCE public.song_song_id_seq OWNED BY public.song.song_id;
 
 
 --
+-- Name: subscription; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.subscription (
+    creator_id integer NOT NULL,
+    subscriber_id integer NOT NULL,
+    status public.status_t DEFAULT 'PENDING'::public.status_t
+);
+
+
+ALTER TABLE public.subscription OWNER TO postgres;
+
+--
 -- Name: user_account; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -184,10 +210,10 @@ ALTER TABLE ONLY public.user_account ALTER COLUMN user_id SET DEFAULT nextval('p
 --
 
 COPY public.album (album_id, judul, penyanyi, total_duration, image_path, tanggal_terbit, genre) FROM stdin;
-2	The Ink Spot	The Ink Spot	349	/assets/audio/theinkspot.jpg	2000-01-01	Jazz
-3	Jazz	multiple	388	/assets/audio/trumpet.jpg	2000-01-01	Jazz
-4	Favorite	someone	459	/assets/audio/doge.jpg	2000-01-01	Jazz
 1	Versus	Hakita	378	/assets/img/ultrakill.svg	2022-01-01	\N
+2	The Ink Spot	The Ink Spot	349	/assets/img/theinkspot.jpg	2000-01-01	Jazz
+3	Jazz	multiple	388	/assets/img/trumpet.jpg	2000-01-01	Jazz
+4	Favorite	someone	459	/assets/img/doge.jpg	2000-01-01	Jazz
 \.
 
 
@@ -211,10 +237,24 @@ COPY public.song (song_id, judul, penyanyi, tanggal_terbit, genre, duration, aud
 
 
 --
+-- Data for Name: subscription; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.subscription (creator_id, subscriber_id, status) FROM stdin;
+\.
+
+
+--
 -- Data for Name: user_account; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public.user_account (user_id, email, password, username, isadmin) FROM stdin;
+1	abc@gmail.com	abcde	abcde	f
+2	aa@gmail.com	aa	bb	f
+3	bbb@gmail.com	bbb	bbb	f
+4	ade@gmail.com	ade	ade	f
+5	abcde@gmail.com	def	def	f
+6	ccc@gmail.com	ccc	ccc	f
 \.
 
 
@@ -253,6 +293,14 @@ ALTER TABLE ONLY public.album
 
 ALTER TABLE ONLY public.song
     ADD CONSTRAINT song_pkey PRIMARY KEY (song_id);
+
+
+--
+-- Name: subscription subscription_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.subscription
+    ADD CONSTRAINT subscription_pkey PRIMARY KEY (creator_id, subscriber_id);
 
 
 --
@@ -305,6 +353,14 @@ CREATE TRIGGER total_time3 AFTER DELETE ON public.song FOR EACH ROW EXECUTE FUNC
 --
 
 CREATE TRIGGER total_time4 BEFORE DELETE ON public.song FOR EACH ROW EXECUTE FUNCTION public.calculate_total_time();
+
+
+--
+-- Name: subscription Identity; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.subscription
+    ADD CONSTRAINT "Identity" FOREIGN KEY (subscriber_id) REFERENCES public.user_account(user_id) NOT VALID;
 
 
 --

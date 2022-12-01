@@ -5,6 +5,7 @@
     }
     if (!isset($_SESSION['login']) || $_SESSION['login'] == false) {
         $_SESSION['login'] = false;
+        $_SESSION['user_id'] = 0;
         $_SESSION['username'] = "GUEST";
         $_SESSION['email'] = "GUEST";
         $_SESSION['isadmin'] = false;
