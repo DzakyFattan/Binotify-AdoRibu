@@ -1,227 +1,86 @@
---
--- PostgreSQL database dump
---
-
--- Dumped from database version 15.0
--- Dumped by pg_dump version 15.0
-
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
-SET check_function_bodies = false;
-SET xmloption = content;
-SET client_min_messages = warning;
-SET row_security = off;
-
---
--- Name: status_t; Type: TYPE; Schema: public; Owner: postgres
---
-
-CREATE TYPE public.status_t AS ENUM (
+CREATE TYPE subscribe_status AS ENUM (
     'PENDING',
     'ACCEPTED',
     'REJECTED'
 );
 
+CREATE TABLE album (
+    album_id SERIAL PRIMARY KEY NOT NULL,
+    judul varchar(64) NOT NULL,
+    penyanyi varchar(128) NOT NULL,
+    total_duration integer NOT NULL DEFAULT 0,
+    image_path varchar(256) NOT NULL,
+    tanggal_terbit DATE NOT NULL,
+    genre varchar(64) DEFAULT "Unknown" NOT NULL,
+);
 
-ALTER TYPE public.status_t OWNER TO postgres;
+CREATE TABLE song (
+    song_id SERIAL PRIMARY KEY NOT NULL,
+    judul varchar(128) NOT NULL,
+    penyanyi varchar(128),
+    tanggal_terbit DATE NOT NULL,
+    genre varchar(64),
+    duration integer NOT NULL DEFAULT 0,
+    audio_path varchar(256) NOT NULL,
+    image_path varchar(256) NOT NULL DEFAULT "/assets/ing/placeholder.jpg",
+    album_id integer 
+    constraint fk_album_id
+        foreign key (album_id) 
+        references album(album_id)
+        on delete set null
+);
 
---
--- Name: calculate_total_time(); Type: FUNCTION; Schema: public; Owner: postgres
---
+CREATE TABLE subscription (
+    creator_id integer NOT NULL,
+    subscriber_id integer NOT NULL,
+    status subscribe_status DEFAULT 'PENDING' NOT NULL,
+);
 
-CREATE FUNCTION public.calculate_total_time() RETURNS trigger
+CREATE TABLE user_account (
+    user_id integer NOT NULL,
+    email varchar(256) NOT NULL,
+    password varchar(256) NOT NULL,
+    username varchar(256) NOT NULL,
+    isadmin boolean DEFAULT false NOT NULL
+);
+
+CREATE FUNCTION calculate_total_time() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 BEGIN
-UPDATE album
-SET total_duration = (SELECT SUM(duration)
-FROM song
-WHERE album_id = NEW.album_id)
-WHERE album_id = NEW.album_id;
+    UPDATE album
+    SET total_duration = (
+        SELECT COALESCE(SUM(duration), 0)
+        FROM song
+        WHERE NEW.album_id IS NOT NULL 
+        AND song_id <> NEW.song_id 
+        AND album_id = NEW.album_id)
+    WHERE NEW.album_id IS NOT NULL 
+    AND album_id = NEW.album_id;
 
 RETURN NEW;
 END;
 $$;
 
+CREATE TRIGGER total_time_after_insert 
+AFTER INSERT ON song 
+FOR EACH STATEMENT 
+EXECUTE FUNCTION calculate_total_time();
 
-ALTER FUNCTION public.calculate_total_time() OWNER TO postgres;
-
-SET default_tablespace = '';
-
-SET default_table_access_method = heap;
-
---
--- Name: album; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.album (
-    album_id integer NOT NULL,
-    judul character varying(64) NOT NULL,
-    penyanyi character varying(128) NOT NULL,
-    total_duration integer NOT NULL,
-    image_path character varying(256) NOT NULL,
-    tanggal_terbit date NOT NULL,
-    genre character varying(64)
-);
+CREATE TRIGGER total_time_after_delete
+AFTER DELETE ON song 
+FOR EACH STATEMENT 
+EXECUTE FUNCTION calculate_total_time();
 
 
-ALTER TABLE public.album OWNER TO postgres;
-
---
--- Name: album_album_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.album_album_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.album_album_id_seq OWNER TO postgres;
-
---
--- Name: album_album_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.album_album_id_seq OWNED BY public.album.album_id;
-
-
---
--- Name: song; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.song (
-    song_id integer NOT NULL,
-    judul character varying(64) NOT NULL,
-    penyanyi character varying(128),
-    tanggal_terbit date NOT NULL,
-    genre character varying(64),
-    duration integer NOT NULL,
-    audio_path character varying(256) NOT NULL,
-    image_path character varying(256),
-    album_id integer
-);
-
-
-ALTER TABLE public.song OWNER TO postgres;
-
---
--- Name: song_song_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.song_song_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.song_song_id_seq OWNER TO postgres;
-
---
--- Name: song_song_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.song_song_id_seq OWNED BY public.song.song_id;
-
-
---
--- Name: subscription; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.subscription (
-    creator_id integer NOT NULL,
-    subscriber_id integer NOT NULL,
-    status public.status_t DEFAULT 'PENDING'::public.status_t
-);
-
-
-ALTER TABLE public.subscription OWNER TO postgres;
-
---
--- Name: user_account; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.user_account (
-    user_id integer NOT NULL,
-    email character varying(256) NOT NULL,
-    password character varying(256) NOT NULL,
-    username character varying(256) NOT NULL,
-    isadmin boolean DEFAULT false NOT NULL
-);
-
-
-ALTER TABLE public.user_account OWNER TO postgres;
-
---
--- Name: user_account_user_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.user_account_user_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.user_account_user_id_seq OWNER TO postgres;
-
---
--- Name: user_account_user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.user_account_user_id_seq OWNED BY public.user_account.user_id;
-
-
---
--- Name: album album_id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.album ALTER COLUMN album_id SET DEFAULT nextval('public.album_album_id_seq'::regclass);
-
-
---
--- Name: song song_id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.song ALTER COLUMN song_id SET DEFAULT nextval('public.song_song_id_seq'::regclass);
-
-
---
--- Name: user_account user_id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.user_account ALTER COLUMN user_id SET DEFAULT nextval('public.user_account_user_id_seq'::regclass);
-
-
---
--- Data for Name: album; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.album (album_id, judul, penyanyi, total_duration, image_path, tanggal_terbit, genre) FROM stdin;
-1	Versus	Hakita	378	/assets/img/ultrakill.svg	2022-01-01	\N
-2	The Ink Spot	The Ink Spot	349	/assets/img/theinkspot.jpg	2000-01-01	Jazz
-3	Jazz	multiple	388	/assets/img/trumpet.jpg	2000-01-01	Jazz
-4	Favorite	someone	459	/assets/img/doge.jpg	2000-01-01	Jazz
+COPY album (album_id, judul, penyanyi, total_duration, image_path, tanggal_terbit, genre) FROM stdin;
+1	Versus	Hakita	\N	/assets/img/ultrakill.svg	2022-01-01	\N
+2	The Ink Spot	The Ink Spot	\N	/assets/img/theinkspot.jpg	2000-01-01	Jazz
+3	Jazz	multiple	\N	/assets/img/trumpet.jpg	2000-01-01	Jazz
+4	Favorite	someone	\N	/assets/img/doge.jpg	2000-01-01	Jazz
 \.
 
-
---
--- Data for Name: song; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.song (song_id, judul, penyanyi, tanggal_terbit, genre, duration, audio_path, image_path, album_id) FROM stdin;
+COPY song (song_id, judul, penyanyi, tanggal_terbit, genre, duration, audio_path, image_path, album_id) FROM stdin;
 3	The Fire Is Gone	Hakita	2022-01-01	\N	158	/assets/audio/The Fire Is Gone.mp3	/assets/img/ultrakill.svg	\N
 4	A Shattered Illusion	Hakita	2022-01-01	\N	191	/assets/audio/A Shattered Illusion.mp3	/assets/img/ultrakill.svg	\N
 1	Versus 2	Hakita	2022-01-01	\N	135	/assets/audio/Versus 2.mp3	/assets/img/ultrakill.svg	1
@@ -235,137 +94,9 @@ COPY public.song (song_id, judul, penyanyi, tanggal_terbit, genre, duration, aud
 12	aaa	bbb	2022-01-01	abc	100	-	-	1
 \.
 
-
---
--- Data for Name: subscription; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.subscription (creator_id, subscriber_id, status) FROM stdin;
+COPY subscription (creator_id, subscriber_id, status) FROM stdin;
 \.
 
 
---
--- Data for Name: user_account; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.user_account (user_id, email, password, username, isadmin) FROM stdin;
+COPY user_account (user_id, email, password, username, isadmin) FROM stdin;
 \.
-
-
---
--- Name: album_album_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.album_album_id_seq', 4, true);
-
-
---
--- Name: song_song_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.song_song_id_seq', 10, true);
-
-
---
--- Name: user_account_user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.user_account_user_id_seq', 1, false);
-
-
---
--- Name: album album_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.album
-    ADD CONSTRAINT album_pkey PRIMARY KEY (album_id);
-
-
---
--- Name: song song_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.song
-    ADD CONSTRAINT song_pkey PRIMARY KEY (song_id);
-
-
---
--- Name: subscription subscription_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.subscription
-    ADD CONSTRAINT subscription_pkey PRIMARY KEY (creator_id, subscriber_id);
-
-
---
--- Name: user_account user_account_email_key; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.user_account
-    ADD CONSTRAINT user_account_email_key UNIQUE (email);
-
-
---
--- Name: user_account user_account_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.user_account
-    ADD CONSTRAINT user_account_pkey PRIMARY KEY (user_id);
-
-
---
--- Name: user_account user_account_username_key; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.user_account
-    ADD CONSTRAINT user_account_username_key UNIQUE (username);
-
-
---
--- Name: song total_time; Type: TRIGGER; Schema: public; Owner: postgres
---
-
-CREATE TRIGGER total_time AFTER INSERT ON public.song FOR EACH ROW EXECUTE FUNCTION public.calculate_total_time();
-
-
---
--- Name: song total_time2; Type: TRIGGER; Schema: public; Owner: postgres
---
-
-CREATE TRIGGER total_time2 AFTER DELETE ON public.song FOR EACH ROW EXECUTE FUNCTION public.calculate_total_time();
-
-
---
--- Name: song total_time3; Type: TRIGGER; Schema: public; Owner: postgres
---
-
-CREATE TRIGGER total_time3 AFTER DELETE ON public.song FOR EACH ROW EXECUTE FUNCTION public.calculate_total_time();
-
-
---
--- Name: song total_time4; Type: TRIGGER; Schema: public; Owner: postgres
---
-
-CREATE TRIGGER total_time4 BEFORE DELETE ON public.song FOR EACH ROW EXECUTE FUNCTION public.calculate_total_time();
-
-
---
--- Name: subscription Identity; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.subscription
-    ADD CONSTRAINT "Identity" FOREIGN KEY (subscriber_id) REFERENCES public.user_account(user_id) NOT VALID;
-
-
---
--- Name: song song_album_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.song
-    ADD CONSTRAINT song_album_id_fkey FOREIGN KEY (album_id) REFERENCES public.album(album_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- PostgreSQL database dump complete
---
-
