@@ -34,6 +34,9 @@ class SingerListJS {
     async refreshSub() {
         let _ = await this.makeRequest("http://localhost:8008/tubes_2/callback_ep.php?call_req=true", "GET", null, null);
     }
+    async doSubscribe(creator_id, subscriber_id) {
+        let _ = await this.makeRequest("http://localhost:8008/tubes_2/set_sub.php?creator_id=" + creator_id + "&subscriber_id=" + subscriber_id, "GET", null, null);
+    }
     async fetchSinger() {
         let singerData = await this.makeRequest('http://localhost:3001/api/app/singer', 'GET', 
         [{ key: 'Authorization', value: 'Siesta-Chicken-Nugget' }], null);
@@ -70,7 +73,12 @@ class SingerListJS {
                             ) ? (
                                 `<button class="button-filter" onclick="location.href = '/singer_song.php?id=${singer.id_user}'">See Song</button>`
                             ) : (
-                                `<button class="button-filter">Subscribe</button>`
+                                `<button class="button-filter"
+                                onclick="
+                                    ${
+                                        this.doSubscribe(singer.id_user, this.user_id)
+                                    }
+                                ">Subscribe</button>`
                             )
                         }
                         </div>
