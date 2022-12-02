@@ -10,10 +10,12 @@ class SingerListJS {
 
     fetchCurrentPage() {
         let xhr = new XMLHttpRequest();
-        xhr.open('GET', 'http://localhost:3001/api/getUsers', true);
-        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        xhr.open('GET', 'http://localhost:3001/api/app/singer', true);
+        xhr.setRequestHeader('Content-type', 'application/json');
+        xhr.setRequestHeader('Authorization', 'Siesta-Chicken-Nugget');
         xhr.onreadystatechange = () => {
             if (xhr.status === 200 && xhr.readyState === 4) {
+                console.log(xhr.responseText)
                 let parsed = JSON.parse(xhr.responseText);
                 /*
                 if (parsed.length === 0) {

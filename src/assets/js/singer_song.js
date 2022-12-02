@@ -4,12 +4,14 @@ class SingerSongJS {
         this.creator_id = document.querySelector('#creator-id').value;
         this.subscriber_id = document.querySelector('#subscriber-id').value;
         this.output = document.querySelector('.alb-middle-limit');
+        console.log(this.creator_id, this.subscriber_id);
     }
     //TODO : bikin, kayanya aku ngikut yang album
     fetchUserSong(){
         let xhr = new XMLHttpRequest();
-        xhr.open('GET', "http://localhost:3001/api/getPremiumSongs?creator_id="+ this.creator_id +"&subscriber_id=" + this.subscriber_id, true);
-        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        xhr.open('GET', "http://localhost:3001/api/app/song?creator_id="+ this.creator_id +"&subscriber_id=" + this.subscriber_id, true);
+        xhr.setRequestHeader('Content-type', 'application/json');
+        xhr.setRequestHeader('Authorization', 'Siesta-Chicken-Nugget');
         xhr.onreadystatechange = () => {
             if (xhr.readyState == 4 && xhr.status == 200) {
                 let parsed = JSON.parse(xhr.responseText);
@@ -23,9 +25,11 @@ class SingerSongJS {
                     }
                 }
                 xhr2.send(null);
+            } else {
+                console.log(xhr.status, xhr.responseText);
             }
         }
-        xhr.send(null);
+        xhr.send();
     }
 
     run(){
