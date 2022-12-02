@@ -1,5 +1,10 @@
-# Adoribu - Comprehensive Collection of ~~Ado's~~ Music
-## Tugas Besar 1 IF3110 - Monolithic PHP & Vanilla Web Application
+# (TUBES 2) Adoribu - Comprehensive Collection of ~~Ado's~~ Music
+## Kelanjutan dari Tugas Besar 1 IF3110 - Monolithic PHP & Vanilla Web Application
+
+### **Perubahan untuk Tubes 2**
+- Tambahan *table* `Subscription` yang tersinkronisasi dengan [SOAP Service](https://gitlab.informatika.org/if3110-2022-k01-02-25/binotify-soap-service) via callback
+- Tambahan list penyanyi premium dan list lagu premium
+
 
 ### Deskripsi aplikasi web
 
