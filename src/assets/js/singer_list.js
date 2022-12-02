@@ -1,66 +1,93 @@
 class SingerListJS {
-    constructor() {
-        this.next_btn = document.querySelector('.l-next-page-icon');
-        this.prev_btn = document.querySelector('.l-previous-page-icon');
-        this.output = document.querySelector('.alb-middle-limit');
-        this.page = 1;
-        this.limit = 5;
-        this.pagecount = document.querySelector('.l-current-page');
+    constructor(user_id) {
+        this.user_id = user_id;
+        this.output = document.querySelector('.alb-middle-limit>.list-display>ul');
     }
-
-    fetchCurrentPage() {
-        let xhr = new XMLHttpRequest();
-        xhr.open('GET', 'http://localhost:3001/api/app/singer', true);
-        xhr.setRequestHeader('Content-type', 'application/json');
-        xhr.setRequestHeader('Authorization', 'Siesta-Chicken-Nugget');
-        xhr.onreadystatechange = () => {
-            if (xhr.status === 200 && xhr.readyState === 4) {
-                console.log(xhr.responseText)
-                let parsed = JSON.parse(xhr.responseText);
-                /*
-                if (parsed.length === 0) {
-                    this.previousPage();
-                    this.stop_page = true;   
-                }*/
-                this.output.innerHTML = '';
-                let xhr2 = new XMLHttpRequest();
-                xhr2.open('GET', 'http://localhost:8008/components/list-display.php' + "?type=singer&json=" +  JSON.stringify(parsed), true);
-                xhr2.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-                xhr2.onreadystatechange = () => {
-                    if (xhr2.status === 200 && xhr2.readyState === 4) {
-                        this.output.innerHTML = xhr2.responseText;
-                    }
+    async makeRequest(url, method, header, payload) {
+        return new Promise(function (resolve, reject) {
+            let xhr = new XMLHttpRequest();
+            xhr.open(method, url);
+            if (header !== null) {
+                for (let i = 0; i < header.length; i++) {
+                    xhr.setRequestHeader(header[i].key, header[i].value);
                 }
-                xhr2.send(null);
             }
-        }
-        xhr.send();
+            xhr.onload = function () {
+                if (this.status >= 200 && this.status < 300) {
+                    resolve(xhr.response);
+                } else {
+                    reject({
+                        status: this.status,
+                        statusText: xhr.statusText
+                    });
+                }
+            };
+            xhr.onerror = function () {
+                reject({
+                    status: this.status,
+                    statusText: xhr.statusText
+                });
+            };
+            xhr.send(payload);
+        });
     }
-
-    previousPage() {
-        if (this.page > 1) {
-            this.page--;
-            this.fetchCurrentPage();
-            this.pagecount.innerHTML = this.page;
-        }
+    async refreshSub() {
+        let _ = await this.makeRequest("http://localhost:8008/tubes_2/callback_ep.php?call_req=true", "GET", null, null);
     }
-    nextPage() {
-        if (!this.stop_page) {
-            this.page++;
-            this.fetchCurrentPage();
-            this.pagecount.innerHTML = this.page;
-        }
+    async fetchSinger() {
+        let singerData = await this.makeRequest('http://localhost:3001/api/app/singer', 'GET', 
+        [{ key: 'Authorization', value: 'Siesta-Chicken-Nugget' }], null);
+        singerData = JSON.parse(singerData);
+        console.log(singerData);
+        let sub_info = await this.makeRequest('http://localhost:8008/tubes_2/req_sub.php', 'GET', null, null);
+        sub_info = JSON.parse(sub_info);
+        console.log(sub_info.result);
+        this.output.innerHTML = '';
+        singerData.forEach((singer) => {
+            console.log({
+                creator_id: singer.id_user.toString(),
+                subscriber_id: this.user_id.toString(),
+                status: "ACCEPTED"
+            })
+            this.output.innerHTML += `
+                <li>
+                    <a href="#" class="l-elmt">
+                        <div class="l-elmt-detail-wrapper">
+                        <div class="l-elmt-detail"> 
+                            <div class="l-elmt-detail-title">${singer.name_user}</div>
+                        </div>
+                        </div>
+                        <div class="delete-icon-wrap">
+                        ${
+                            (
+                                sub_info.result.filter((sub) => {
+                                    return (
+                                        sub.creator_id === singer.id_user.toString() &&
+                                        sub.subscriber_id === this.user_id.toString() &&
+                                        sub.status === "ACCEPTED"
+                                    )
+                                }).length > 0
+                            ) ? (
+                                `<button class="button-filter" onclick="location.href = '/singer_song.php?id=${singer.id_user}'">See Song</button>`
+                            ) : (
+                                `<button class="button-filter">Subscribe</button>`
+                            )
+                        }
+                        </div>
+                    </a>
+                </li>
+            `;
+        });
     }
     run() {
-        this.fetchCurrentPage();
-        this.next_btn.addEventListener('click', () => {
-            this.nextPage();
-        });
-        this.prev_btn.addEventListener('click', () => {
-            this.previousPage();
-        });
+        this.refreshSub();
+        this.fetchSinger();
+        setInterval(() => {
+            this.refreshSub();
+            this.fetchSinger();
+        }, 5000);
     }
 }
 
-const singerListJS = new SingerListJS();
+const singerListJS = new SingerListJS(id_user);
 singerListJS.run();
