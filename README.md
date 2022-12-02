@@ -66,7 +66,7 @@ sudo ./scripts/build-image.sh
 ```
 
 ### Screenshot tampilan aplikasi
-![ss](https://gitlab.informatika.org/if3110-2022-k01-01-23/tugas-besar-1/-/raw/main/screenshots/unknown%20(1).png)
+![ss](/screenshots/unknown%20(1).png)
 
 ### Pembagian Tugas Anggota
 
