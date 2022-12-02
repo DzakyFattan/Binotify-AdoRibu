@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS subscription (
     creator_id integer NOT NULL,
     subscriber_id integer NOT NULL,
     status subscribe_status DEFAULT 'PENDING' NOT NULL,
+    primary key (creator_id, subscriber_id),
     foreign key (subscriber_id) 
         references user_account(user_id)
         on delete cascade
