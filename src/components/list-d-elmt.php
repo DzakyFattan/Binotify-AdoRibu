@@ -38,7 +38,18 @@
                         <a href="/components/set-subscription.php?id='. $json->id_user .'" class="button-filter">Subscribe</a>
                         <a href="/singer_song.php?id='. $json->id_user .'" class="button-filter">Check Song</a>
                         <div class="l-elmt-detail-wrapper">';
+        } else if ($type === "singer-song"){
+            $retval .= '<div class="l-elmt-detail-wrapper">
+                        <div class="l-elmt-detail"> 
+                            <div class="l-elmt-detail-title">' . $json->judul .'</div>
+                        </div>
+                        </div>
+                        <audio controls>
+                            <source src="http://localhost:3001/' . $json->audio_path . '"></source>
+                        </audio>
+                        <div class="l-elmt-detail-wrapper">';
         }
+
         $retval .= '</div>
                     <div class="delete-icon-wrap visib-hidden">
                         <img src="/assets/img/trash-o.svg" alt="">

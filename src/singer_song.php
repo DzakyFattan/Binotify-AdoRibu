@@ -6,7 +6,7 @@
             SELECT * FROM subscription WHERE creator_id = $creator_id AND subscriber_id = $subs_id AND status = 'ACCEPTED'
         Q;
     $result = pg_query($db, $permission_data);
-    if (!$result){
+    if (pg_num_rows($result) == 0){
         header("Location: /singer_list.php");
         exit;
     }
@@ -30,26 +30,14 @@
         <![endif]-->
         <div class="bg-wrap">
             <?php include_once 'components/header.php'; ?>
-            <input id="album-id" class="display-none" value="<?php echo $_GET['id'] ?>" />
-            <section class="album-cover section-fw flex-row">
-                <div class="album-cover-img"><img src="" alt=""></div>
-                    <div class="album-details">
-                        <div id="modifiable-wrapper"></div>
-                    </div>
-            </section>
+            <input id="creator-id" class="display-none" value="<?php echo $_GET['id'] ?>" />
+            <input id="subscriber-id" class="display-none" value="<?php echo $_SESSION['user_id'] ?>" />
             <section class="section-fw">
                 <div class="album-list flex-col">
                     <div class="add-song-control flex-row">
                         <h1 class="section-title">Song List</h1>
                     </div>
-                    <form action="" class="display-none flex-col add-song-panel" autocomplete="off">
-                        <input type="list" class="input-text" list="song-list-opt" id="song-add-choice" placeholder="Search song">
-                        <datalist id="song-list-opt">
-                        </datalist>
-                        <input type="hidden" id="song-add-choice-hidden" value="">
-                        <input type="button" class="button-filter add-song-btn" value="Add Song">
-                    </form>
-                    <div class="song-out">
+                    <div class="alb-middle-limit">
 
                     </div>
                 </div>

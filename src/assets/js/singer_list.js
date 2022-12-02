@@ -32,7 +32,7 @@ class SingerListJS {
                 xhr2.send(null);
             }
         }
-        xhr.send(null);
+        xhr.send();
     }
 
     previousPage() {
